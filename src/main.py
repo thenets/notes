@@ -1,4 +1,4 @@
-import hashlib, redis, datetime
+import hashlib, redis, datetime, humanize
 
 from flask import Flask, render_template, url_for, request, jsonify
 app = Flask(__name__)
@@ -44,8 +44,11 @@ def api_write(path):
 
       # Store the note in the database
       try:
+            updateAt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
             r.set(path, request.form['note'])
-            r.set(path+':time', datetime.datetime.now().isoformat())
+            r.set(path+':time', updateAt)
+
             out['content'] = r.get(path).decode('utf-8')
             out['updateAt'] = r.get(path+':time').decode('utf-8')
       except:
@@ -58,20 +61,42 @@ def api_write(path):
 # View render
 ##
 
+@app.route('/favicon.ico', methods=['GET'])
+def favicon():
+      return ''
+
 # All notes requests
 @app.route('/<path:path>', methods=['GET'])
 def catch_all(path):
+      out = {}
+      out['content'] = ''
+      out['updateAt'] = ''
+      out['updateAtHumanize'] = ''
+      out['error'] = ''
 
-      # Note update
-      if request.method == 'PUT':
-            return "cafe"
+      # Check if note exist
+      if r.exists(path) == 0:
+            out['error'] = "Note doesn't exist!"
       
-      # Get note content by hash
+      else:
+            # Get note from the database
+            try:
+                  updateAt = r.get(path+':time').decode('utf-8')
+                  updateAtHumanize = humanize.naturaltime( datetime.datetime.now() - datetime.datetime.strptime(updateAt, '%Y-%m-%d %H:%M:%S') )
 
-      # Note render view
-      return 'You want path: %s' % path
+                  out['content'] = r.get(path).decode('utf-8')
+                  out['updateAt'] = updateAt
+                  out['updateAtHumanize'] = updateAtHumanize
+            except:
+                  out['error'] = "Fail to read the note!"
 
-
+      # Render note view
+      return render_template('note.html',
+                              path=path,
+                              content=out['content'],
+                              updateAt=out['updateAt'],
+                              updateAtHumanize=out['updateAtHumanize'],
+                              error=out['error'])
     
 # Default homepage
 @app.route('/')

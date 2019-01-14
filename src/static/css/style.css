@@ -1,3 +1,7 @@
 body {
     background: white;
 }
+
+#noteArea {
+    padding-top: 30px;
+}

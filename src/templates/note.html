@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{{path}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Semantic UI CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css" />
+</head>
+<body>
+
+    <!-- Main form area -->
+    <div id="noteArea">
+        <div class="ui raised very padded text container segment">
+            <h2 class="ui header">{{path}} <small>{{updateAtHumanize}}</small></h2>
+            <div class="ui form">
+                <div class="field" style="position: relative;">
+                    <textarea spellcheck="true" >{{content}}</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+       
+
+    <script>
+        (function(){
+            error = '{{error}}'
+            if (error != '') {
+                console.log(error);
+            }
+            console.log("oi");
+        })();
+    </script>
+
+    <!-- Semantic UI JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+</body>
+</html>
