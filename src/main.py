@@ -1,4 +1,4 @@
-import hashlib, redis, datetime, humanize
+import hashlib, redis, datetime, humanize, sys
 
 from flask import Flask, render_template, url_for, request, jsonify
 app = Flask(__name__)
@@ -46,13 +46,19 @@ def api_write(path):
       try:
             updateAt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-            r.set(path, request.form['note'])
-            r.set(path+':time', updateAt)
+            # Delete if 'note' is empty
+            if len(request.form['note']) == 0:
+                  r.delete(path)
+                  r.delete(path+':time')
+            else:
+                  r.set(path, request.form['note'])
+                  r.set(path+':time', updateAt)
 
             out['content'] = r.get(path).decode('utf-8')
             out['updateAt'] = r.get(path+':time').decode('utf-8')
-      except:
+      except Exception as e:
             out['error'] = "Fail to save the note!"
+            print(str(e))
 
       return jsonify(out)
 
