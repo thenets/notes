@@ -19,24 +19,32 @@ function convertHTMLEntity(text){
         console.log("INTERNAL ERROR:", convertHTMLEntity(error));
     }
 
-    // Load note for the first time
-    
-    $.getJSON( "/api/"+path, function( data ) {
-        $("#noteField").val(data['content']);
-        $("#noteField").prop("disabled", false);
+    // Load note every 2 seconds
+    let lastSave;
+    setInterval(function(){
+        lastSave = setTimeout(function() {
+            $.getJSON( "/api/"+path, function( data ) {
+                $("#noteField").val(data['content']);
+                $("#noteField").prop("disabled", false);
+            });
+        }, 100);
+    }, 2000);
+    $('#noteField').keydown(function() {
+        clearTimeout(lastSave);
     });
+    
 
     // Save content update
-    let wto;
+    let lastKeyPress;
     $('#noteField').keydown(function() {
-        clearTimeout(wto);
-        wto = setTimeout(function() {
+        clearTimeout(lastKeyPress);
+        lastKeyPress = setTimeout(function() {
 
             $.post( "/api/"+path , { note: $("#noteField").val() } )
                 .done(function(data) {
                     // saved
+                    //console.log(data);
                     $("#updateAtHumanize").hide();
-                    console.log(data);
                 })
                 .fail(function() {
                     // fail
