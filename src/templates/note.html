@@ -17,28 +17,26 @@
     <!-- Main form area -->
     <div id="noteArea">
         <div class="ui raised very padded text container segment">
-            <h2 class="ui header">{{path}} <small>{{updateAtHumanize}}</small></h2>
+            <h2 class="ui header">{{path}} <small id="updateAtHumanize">{{updateAtHumanize}}</small></h2>
             <div class="ui form">
                 <div class="field" style="position: relative;">
-                    <textarea spellcheck="true" >{{content}}</textarea>
+                    <textarea id="noteField" spellcheck="true" disabled></textarea>
                 </div>
             </div>
         </div>
     </div>
        
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
+    <!-- Main JS code -->
     <script>
-        (function(){
-            error = '{{error}}'
-            if (error != '') {
-                console.log(error);
-            }
-            console.log("oi");
-        })();
+        let error = '{{error}}'
+        let path = '{{path}}'
     </script>
+    <script src="/static/js/main.js"></script>
 
     <!-- Semantic UI JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
 </body>
 </html>
