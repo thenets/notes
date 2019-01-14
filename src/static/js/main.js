@@ -10,6 +10,23 @@ function convertHTMLEntity(text){
 }
 
 
+// Reload note
+function reloadNote () {
+    $.getJSON( "/api/"+path, function( data ) {
+        $("#loader").hide();
+        // console.log(lastSave);
+        $("#errorMessage").hide();
+        $("#updateAtHumanize").html(data['updateAtHumanize']);
+        $("#noteField").val(data['content']);
+        $("#noteField").prop("disabled", false);
+    })
+        .fail(function() {
+            $("#errorMessage").show();
+            $("#errorMessage").html("Connection lost!");
+        });
+}
+
+
 // When document is ready
 (function(){
     console.log("PATH:", "/"+path);
@@ -18,25 +35,30 @@ function convertHTMLEntity(text){
     if (error != '') {
         console.log("INTERNAL ERROR:", convertHTMLEntity(error));
     }
+    
+    // During the first load
+    reloadNote();
 
     // Load note every 2 seconds
-    let lastSave;
+    let lastSave = 0;
     setInterval(function(){
-        lastSave = setTimeout(function() {
-            $.getJSON( "/api/"+path, function( data ) {
-                $("#noteField").val(data['content']);
-                $("#noteField").prop("disabled", false);
-            });
-        }, 100);
+        lastSave = lastSave+1
+
+        if (lastSave > 1 ) {
+            reloadNote();
+        }
     }, 2000);
-    $('#noteField').keydown(function() {
-        clearTimeout(lastSave);
+    $('#noteField').bind('input propertychange', function() {
+        // console.log(lastSave);
+        lastSave = 0;
     });
     
 
     // Save content update
     let lastKeyPress;
-    $('#noteField').keydown(function() {
+    $('#noteField').bind('input propertychange', function() {
+        $("#loader").transition('show').transition('stop all');
+        
         clearTimeout(lastKeyPress);
         lastKeyPress = setTimeout(function() {
 
@@ -44,11 +66,14 @@ function convertHTMLEntity(text){
                 .done(function(data) {
                     // saved
                     //console.log(data);
-                    $("#updateAtHumanize").hide();
+                    lastSave = 0;
+                    if($("#loader").is(":visible")){
+                        $("#loader").transition('zoom');
+                    }
                 })
                 .fail(function() {
                     // fail
                 });
-        }, 100);
+        }, 500);
     });
 })();

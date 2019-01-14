@@ -9,6 +9,9 @@
     <!-- Semantic UI CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
 
+    <!-- Hack font -->
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3/build/web/hack.css">
+
     <!-- Custom CSS -->
     <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css" />
 </head>
@@ -16,11 +19,17 @@
 
     <!-- Main form area -->
     <div id="noteArea">
-        <div class="ui raised very padded text container segment">
-            <h2 class="ui header">{{path}} <small id="updateAtHumanize">{{updateAtHumanize}}</small></h2>
-            <div class="ui form">
-                <div class="field" style="position: relative;">
-                    <textarea id="noteField" spellcheck="true" disabled></textarea>
+        <div class="ui text container">
+            <h2 class="ui header">
+                <div id="loader" class="ui active small inline loader" style="float: right"></div>
+                {{path}} 
+            </h2>
+            <div class="ui ui piled segment form">
+                <p class="ui blue right ribbon label"><span id="updateAtHumanize"></span></p>
+                <div id="errorMessage" class="ui red bottom attached label" style="display: none"></div>
+
+                <div class=" field" style="position: relative;">
+                    <textarea id="noteField" spellcheck="true" style="" disabled></textarea>
                 </div>
             </div>
         </div>

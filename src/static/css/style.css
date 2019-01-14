@@ -5,3 +5,14 @@ body {
 #noteArea {
     padding-top: 30px;
 }
+
+#noteField {
+    min-height: 340px;
+    font-family: Hack, monospace;
+    border: none !important;
+    background: none !important;
+}
+
+#errorMessage {
+    z-index: 9999;
+}
