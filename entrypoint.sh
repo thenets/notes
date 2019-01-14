@@ -1,6 +1,9 @@
 #!/bin/sh
 
+set -e
+
 # Start Redis server
+cd /tmp
 redis-server &
 #sleep 1
 
@@ -8,5 +11,5 @@ redis-server &
 . /venv/bin/activate
 
 # Start flask server
-cd /app/src
+cd /app
 python main.py

@@ -16,9 +16,15 @@ function reloadNote () {
         $("#loader").hide();
         // console.log(lastSave);
         $("#errorMessage").hide();
-        $("#updateAtHumanize").html(data['updateAtHumanize']);
         $("#noteField").val(data['content']);
         $("#noteField").prop("disabled", false);
+
+        if(data['updateAtHumanize'] === '') {
+            $("#updateAtHumanize").parent(".ribbon").hide();
+        } else {
+            $("#updateAtHumanize").parent(".ribbon").show();
+            $("#updateAtHumanize").html(data['updateAtHumanize']);
+        }
     })
         .fail(function() {
             $("#errorMessage").show();

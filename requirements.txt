@@ -1,4 +1,4 @@
 flask
 humanize
 redis
-sass
+Flask-Mobility
