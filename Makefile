@@ -14,5 +14,7 @@ run:
 # Run shell inside the container
 shell:
 	docker run -it --rm \
+		--name thenets-notes \
 		-v $(PWD)/src:/app \
-		$(IMAGE_TAG)
+		$(IMAGE_TAG) /bin/sh
+	

@@ -2,7 +2,7 @@
 
 # Start Redis server
 redis-server &
-sleep 1
+#sleep 1
 
 # Enable virtualenv
 . /venv/bin/activate

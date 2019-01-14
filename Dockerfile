@@ -1,6 +1,8 @@
 FROM alpine
 
 RUN set -e \
+    # Install general dev tools
+    && apk add build-base python3-dev gcc alpine-sdk \
     # Install python3 and virtualenv
     && apk add py3-virtualenv \
     # Install Redis
