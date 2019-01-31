@@ -22,14 +22,14 @@
         <div class="ui text container">
             <h2 class="ui header">
                 <div id="loader" class="ui active small inline loader" style="float: right"></div>
-                {{path}} 
+                <span class="ui computer only grid">{{path}}</span>
             </h2>
-            <div class="ui ui piled segment form">
+            <div class="ui piled segment form">
                 <p class="ui blue right ribbon label" style="display: none"><span id="updateAtHumanize"></span></p>
                 <div id="errorMessage" class="ui red bottom attached label" style="display: none"></div>
 
                 <div class=" field" style="position: relative;">
-                    <textarea id="noteField" spellcheck="true" style="" disabled></textarea>
+                    <textarea id="noteField" spellcheck="true" disabled></textarea>
                 </div>
             </div>
         </div>
