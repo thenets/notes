@@ -11,10 +11,12 @@ function convertHTMLEntity(text){
 
 
 // Reload note
-function reloadNote () {
+function reloadNote (lastSave) {
     $.getJSON( "/api/"+path, function( data ) {
+        // Ignore load if last save < 2
+        if (lastSave < 2) return;
+
         $("#loader").hide();
-        // console.log(lastSave);
         $("#errorMessage").hide();
         $("#noteField").val(data['content']);
         $("#noteField").prop("disabled", false);
@@ -43,15 +45,21 @@ function reloadNote () {
     }
     
     // During the first load
-    reloadNote();
+    let lastSave = 2;
+    reloadNote(lastSave);
 
     // Load note every 2 seconds
-    let lastSave = 0;
     setInterval(function(){
         lastSave = lastSave+1
 
+        // Reload note
         if (lastSave > 1 ) {
-            reloadNote();
+            reloadNote(lastSave);
+        }
+
+        // If some fail, force hide the loader
+        if (lastSave > 2 ) {
+            $("#loader").hide();
         }
     }, 2000);
     $('#noteField').bind('input propertychange', function() {
