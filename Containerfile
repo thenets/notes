@@ -4,8 +4,7 @@ ENV GOPATH=/go
 
 WORKDIR /go/pkg/mod/github.com/thenets/notes/
 
-# COPY go.mod go.sum main.go static/ kvstore/ .
-COPY ./* /go/pkg/mod/github.com/thenets/notes/
+COPY . .
 
 RUN set -ex \
     && go mod download \
@@ -13,10 +12,11 @@ RUN set -ex \
 
 
 # Final image
-FROM gcr.io/distroless/base-debian11 AS build-release-stage
-WORKDIR /
-COPY --from=builder /notes /notes
+FROM gcr.io/distroless/base-debian11
+WORKDIR /app
+COPY --from=builder /notes /app/notes
+COPY --from=builder /go/pkg/mod/github.com/thenets/notes/static /app/static
 USER nonroot:nonroot
 EXPOSE 8080
 ENV PORT=8080
-ENTRYPOINT ["/notes"]
+ENTRYPOINT ["/app/notes"]
