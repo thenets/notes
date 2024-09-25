@@ -10,6 +10,8 @@ import (
 	"strings"
 	"time"
 
+	"math/rand"
+
 	"github.com/thenets/notes/kvstore"
 )
 
@@ -22,13 +24,22 @@ type Note struct {
 }
 
 type ResponseNotePost struct {
-	Message string `json:"message"`
+	Note string `json:"note"`
 }
 
 func getCurrentDatetime() string {
 	now := time.Now().UTC()
 	iso8601Format := now.Format(time.RFC3339)
 	return iso8601Format
+}
+
+func generateRandomString(length int) string {
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(b)
 }
 
 func pageApiNote(w http.ResponseWriter, r *http.Request) {
@@ -76,43 +87,56 @@ func pageApiNote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		dataRawBytes, _ := io.ReadAll(r.Body)
-		dataRawString := string(dataRawBytes)
-		fmt.Println(dataRawString)
-		if !strings.HasPrefix(dataRawString, "note=") {
-			http.Error(w, "The POST body has an invalid format.", http.StatusInternalServerError)
+		// Receive the response
+		responseBodyBytes, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Error reading response body", http.StatusInternalServerError)
 			return
 		}
+		defer r.Body.Close()
+
+		// Declare a variable to hold the parsed JSON data
+		var requestData map[string]interface{}
+
+		// Parse as struct
+		err = json.Unmarshal(responseBodyBytes, &requestData)
+		if err != nil {
+			http.Error(w, "Error parsing JSON", http.StatusBadRequest)
+			return
+		}
+		json.NewEncoder(w).Encode(requestData)
+
+		dataString := requestData["note"].(string)
 
 		// Update value
-		dataString := dataRawString[5:]
-		err := kv.Set(keys, dataString)
+		err = kv.Set(keys, dataString)
 		if err != nil {
 			fmt.Println("Error setting key:", err)
 			return
 		}
 
-		responseData := ResponseNotePost{
-			Message: dataString,
-		}
-
-		json.NewEncoder(w).Encode(responseData)
 	}
 }
 
 func staticFileHandler(w http.ResponseWriter, r *http.Request) {
 	keys := r.URL.Path[len("/"):]
 
+	// Create new note if reaches the root path
+	if len(keys) == 0 {
+		// Generate a random value
+		randomValue := generateRandomString(32)
+
+		// Construct the target URL with the random value
+		targetURL := fmt.Sprintf("//%s/%s", r.Host, randomValue)
+
+		// Redirect the client to the constructed URL
+		http.Redirect(w, r, targetURL, http.StatusFound)
+	}
+
 	var keys_slice []string
 
 	// Static pattern identified
-	if len(keys) == 0 || strings.HasPrefix(keys, "assets/") {
-		// Default for homepage
-		if len(keys) == 0 {
-			keys_slice = append(keys_slice, "static")
-			keys_slice = append(keys_slice, "index.html")
-		}
-
+	if strings.HasPrefix(keys, "assets/") {
 		// Assets
 		if strings.HasPrefix(keys, "assets/") {
 			keys_slice = append(keys_slice, "static")

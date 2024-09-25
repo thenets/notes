@@ -24,8 +24,10 @@ function reloadNote (lastSave) {
         if(data['updateAtHumanize'] === '') {
             $("#updateAtHumanize").parent(".ribbon").hide();
         } else {
+            const humanizedTime = moment(data['updated_at']).fromNow();
+
             $("#updateAtHumanize").parent(".ribbon").show();
-            $("#updateAtHumanize").html(data['updateAtHumanize']);
+            $("#updateAtHumanize").html(humanizedTime);
         }
     })
         .fail(function() {
@@ -43,7 +45,7 @@ function reloadNote (lastSave) {
     if (error != '') {
         console.log("INTERNAL ERROR:", convertHTMLEntity(error));
     }
-    
+
     // During the first load
     let lastSave = 2;
     reloadNote(lastSave);
@@ -66,28 +68,31 @@ function reloadNote (lastSave) {
         // console.log(lastSave);
         lastSave = 0;
     });
-    
+
 
     // Save content update
     let lastKeyPress;
     $('#noteField').bind('input propertychange', function() {
         $("#loader").transition('show').transition('stop all');
-        
+
         clearTimeout(lastKeyPress);
         lastKeyPress = setTimeout(function() {
-
-            $.post( "/api/"+path , { note: $("#noteField").val() } )
-                .done(function(data) {
+            $.ajax({
+                url: "/api/" + path,
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ note: $("#noteField").val() }),
+                success: function(data) {
                     // saved
-                    //console.log(data);
                     lastSave = 0;
-                    if($("#loader").is(":visible")){
+                    if ($("#loader").is(":visible")) {
                         $("#loader").transition('zoom');
                     }
-                })
-                .fail(function() {
+                },
+                error: function() {
                     // fail
-                });
+                }
+            });
         }, 500);
     });
 })();
