@@ -7,9 +7,3 @@ updates:
   labels:
     - "dependencies"
   open-pull-requests-limit: 10
-  pull-request-body: |
-    This pull request updates the following dependencies:
-    {{#dependencies}}
-    - **{{name}}**: from version {{from_version}} to {{to_version}}
-    {{/dependencies}}
-    Please review and merge this pull request at your earliest convenience.
