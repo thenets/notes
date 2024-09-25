@@ -40,8 +40,9 @@
 
     <!-- Main JS code -->
     <script>
-        let error = '{{error}}'
-        let path = '{{path}}'
+        let error = ""
+        let path = (new URL(window.location.href)).pathname.substring(1);
+        document.title = path
     </script>
     <script src="/assets/js/main.js"></script>
 
