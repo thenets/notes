@@ -29,7 +29,7 @@ jobs:
           set -x
           cd ./container/
           export IMAGE_TAG=$QUAY_REPO:latest
-          make release-build
+          make container-build
 
       - name: "📦 Container push"
         run: |
@@ -38,10 +38,10 @@ jobs:
 
           # Latest tag
           export IMAGE_TAG=$QUAY_REPO:latest
-          make release-push
+          make container-push
 
           # Branch tag
           export BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)
           podman tag $QUAY_REPO:latest $QUAY_REPO:$BRANCH
           export IMAGE_TAG=$QUAY_REPO:$BRANCH
-          make release-push
+          make container-push

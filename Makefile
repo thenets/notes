@@ -1,4 +1,4 @@
-IMAGE_TAG=quay.io/thenets/notes
+IMAGE_TAG ?= quay.io/thenets/notes
 CONTAINER_RUNTIME=podman
 
 # Go
