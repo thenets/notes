@@ -27,14 +27,12 @@ jobs:
       - name: "🖥️ Container build"
         run: |
           set -x
-          cd ./container/
           export IMAGE_TAG=$QUAY_REPO:latest
           make container-build
 
       - name: "📦 Container push"
         run: |
           set -x
-          cd ./container/
 
           # Latest tag
           export IMAGE_TAG=$QUAY_REPO:latest
