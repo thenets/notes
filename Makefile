@@ -1,20 +1,39 @@
-IMAGE_TAG=thenets/notes
+IMAGE_TAG=quay.io/thenets/notes
+CONTAINER_RUNTIME=podman
 
-# Build Docker image
-build:
-	docker build -t $(IMAGE_TAG) .
+# Go
+.PHONY: go-update
+go-update:
+	go mod tidy
 
-# Run server in the development mode
-run: 
-	docker run -it --rm \
-		-v $(PWD)/src:/app \
-		-p 5000:5000 \
+# Container
+.PHONY: container-build
+container-build: go-update
+	${CONTAINER_RUNTIME} build -t $(IMAGE_TAG) .
+
+.PHONY: container-run
+container-run:
+	${CONTAINER_RUNTIME} run -it --rm \
+		-p 8080:8080 \
 		$(IMAGE_TAG)
 
-# Run shell inside the container
-shell:
-	docker run -it --rm \
+.PHONY: container-push
+container-push:
+	${CONTAINER_RUNTIME} push $(IMAGE_TAG)
+
+.PHONY: container-shell
+container-shell:
+	${CONTAINER_RUNTIME} run -it --rm \
+		--user root \
 		--name thenets-notes \
-		-v $(PWD)/src:/app \
-		$(IMAGE_TAG) /bin/sh
-	
+		--workdir /app \
+		-v $(PWD):/app:Z \
+		docker.io/golang:latest /bin/sh
+
+.PHONY: release
+release: container-build container-push
+
+.PHONY: clean
+clean:
+	rm -f notes
+	rm -rf vendor/

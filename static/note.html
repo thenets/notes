@@ -13,12 +13,12 @@
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3/build/web/hack.css">
 
     <!-- Custom CSS -->
-    <link rel="stylesheet" type="text/css" media="screen" href="/static/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css" />
 </head>
 <body>
 
     <!-- Main form area -->
-    <div id="noteArea">
+    <div id="noteArea" style="margin-top: 40px;">
         <div class="ui text container">
             <h2 class="ui header">
                 <div id="loader" class="ui active small inline loader" style="float: right"></div>
@@ -34,16 +34,22 @@
             </div>
         </div>
     </div>
-       
-    <!-- jQuery -->
+
+    <!-- jQuery and Moment -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
 
     <!-- Main JS code -->
     <script>
-        let error = '{{error}}'
-        let path = '{{path}}'
+        let error = ""
+        let path = (new URL(window.location.href)).pathname.substring(1);
+
+        // Update title
+        document.title = path
+        const title_span = document.querySelector('.ui.computer.only.grid');
+        title_span.innerHTML = path
     </script>
-    <script src="/static/js/main.js"></script>
+    <script src="/assets/js/main.js"></script>
 
     <!-- Semantic UI JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>

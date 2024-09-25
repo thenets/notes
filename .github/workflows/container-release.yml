@@ -1,0 +1,47 @@
+name: Container release
+run-name: ${{ github.actor }} triggered a container build and push release
+on:
+  push:
+    branches:
+      - main
+      - 'refs/tags/*'
+
+jobs:
+  Container-Build-and-Push:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "🎉 The job was automatically triggered by a '${{ github.event_name }}' event."
+      - run: echo "🐧 This job is now running on a '${{ runner.os }}' server."
+
+      - name: "📦 Set Quay repo"
+        run: echo "QUAY_REPO=quay.io/thenets/notes" >> $GITHUB_ENV
+
+      - name: "🚚 Check out repository code: ${{ github.ref }} ${{ github.repository }}"
+        uses: actions/checkout@v4
+
+      - name: "🔑 Authenticate with Quay.io"
+        run: |
+          set +x
+          podman login -u ${{ secrets.QUAY_USERNAME }} -p ${{ secrets.QUAY_PASSWORD }} quay.io
+
+      - name: "🖥️ Container build"
+        run: |
+          set -x
+          cd ./container/
+          export IMAGE_TAG=$QUAY_REPO:latest
+          make release-build
+
+      - name: "📦 Container push"
+        run: |
+          set -x
+          cd ./container/
+
+          # Latest tag
+          export IMAGE_TAG=$QUAY_REPO:latest
+          make release-push
+
+          # Branch tag
+          export BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)
+          podman tag $QUAY_REPO:latest $QUAY_REPO:$BRANCH
+          export IMAGE_TAG=$QUAY_REPO:$BRANCH
+          make release-push

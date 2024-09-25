@@ -8,7 +8,11 @@ body {
         padding-bottom: 12px;
     }
 }
-  
+
+#noteArea {
+    padding-top: 40px;
+}
+
 #noteField {
     min-height: 340px;
     font-family: Hack, monospace;
