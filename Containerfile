@@ -1,31 +1,22 @@
-FROM alpine
+FROM docker.io/golang:latest as builder
 
-RUN set -e \
-    # Install general dev tools
-    && apk add build-base python3-dev gcc alpine-sdk \
-    # Install python3 and virtualenv
-    && apk add py3-virtualenv \
-    # Install Redis
-    && apk add redis
+ENV GOPATH=/go
 
-# Install Python dependencies
-ADD ./requirements.txt /app/
-RUN set -x \
-    # Create virtualenv
-    && virtualenv -p python3 /venv \
-    # Install libs
-    && set +x \
-    && . /venv/bin/activate \
-    && set -x \
-    && pip install -r /app/requirements.txt
+WORKDIR /go/pkg/mod/github.com/thenets/notes/
 
-ADD ./src /app
-ADD ./*.sh /
+# COPY go.mod go.sum main.go static/ kvstore/ .
+COPY ./* /go/pkg/mod/github.com/thenets/notes/
 
-RUN set -x \
-    # Fix permissions
-    && chmod +x /*.sh
+RUN set -ex \
+    && go mod download \
+    && CGO_ENABLED=0 GOOS=linux go build -o /notes
 
-WORKDIR /app
 
-CMD [ "/entrypoint.sh" ]
+# Final image
+FROM gcr.io/distroless/base-debian11 AS build-release-stage
+WORKDIR /
+COPY --from=builder /notes /notes
+USER nonroot:nonroot
+EXPOSE 8080
+ENV PORT=8080
+ENTRYPOINT ["/notes"]

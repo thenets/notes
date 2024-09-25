@@ -13,6 +13,8 @@ import (
 	"math/rand"
 
 	"github.com/thenets/notes/kvstore"
+
+	"github.com/sirupsen/logrus"
 )
 
 var kv = &kvstore.InMemoryKVStore{}
@@ -51,22 +53,23 @@ func pageApiNote(w http.ResponseWriter, r *http.Request) {
 	keys := r.URL.Path[len("/api/"):]
 
 	if r.Method == http.MethodGet {
+		logrus.Debug("GET", " ", keys)
+
 		// Extract the key from the URL path
 		if keys == "" {
+			logrus.Warn(keys, " ", "Key is required")
 			http.Error(w, "Key is required", http.StatusBadRequest)
 			return
 		}
 		if strings.Count(keys, "/") > 0 {
+			logrus.Warn(keys, " ", "Invalid key format. Key must be in the form /api/{note_id}")
 			http.Error(w, "Invalid key format. Key must be in the form /api/{note_id}", http.StatusBadRequest)
 			return
 		}
 
 		// Retrieving value
-		fmt.Println("RETRIEVE:", keys)
 		before_value, err := kv.Get(keys)
 		if err != nil {
-			fmt.Println("Error getting key:", err)
-			fmt.Println("Setting empty value to it.")
 			before_value = ""
 		}
 		// fmt.Println("  - before:", before_value)
@@ -81,15 +84,19 @@ func pageApiNote(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		err = json.NewEncoder(w).Encode(note)
 		if err != nil {
+			logrus.WithError(err).Error(keys, " ", "Failed to encode JSON")
 			http.Error(w, fmt.Sprintf("Failed to encode JSON: %v", err), http.StatusInternalServerError)
 			return
 		}
 	}
 
 	if r.Method == http.MethodPost {
+		logrus.Info("POST", " ", keys)
+
 		// Receive the response
 		responseBodyBytes, err := io.ReadAll(r.Body)
 		if err != nil {
+			logrus.WithError(err).Error(keys, " ", "Error reading response body")
 			http.Error(w, "Error reading response body", http.StatusInternalServerError)
 			return
 		}
@@ -101,6 +108,7 @@ func pageApiNote(w http.ResponseWriter, r *http.Request) {
 		// Parse as struct
 		err = json.Unmarshal(responseBodyBytes, &requestData)
 		if err != nil {
+			logrus.WithError(err).Error(keys, " ", "Error parsing JSON")
 			http.Error(w, "Error parsing JSON", http.StatusBadRequest)
 			return
 		}
@@ -111,7 +119,8 @@ func pageApiNote(w http.ResponseWriter, r *http.Request) {
 		// Update value
 		err = kv.Set(keys, dataString)
 		if err != nil {
-			fmt.Println("Error setting key:", err)
+			logrus.WithError(err).Error(keys, " ", "Error setting key")
+			http.Error(w, "Internal error", http.StatusBadRequest)
 			return
 		}
 
@@ -155,27 +164,39 @@ func staticFileHandler(w http.ResponseWriter, r *http.Request) {
 		// Serve the static file
 		w.Header().Set("Content-Type", "text/html")
 		http.ServeFile(w, r, filePath)
+		return
 	}
 
 	// Loading notes UI
 	if len(strings.Split(keys, "/")) > 1 {
+		logrus.Error(keys, " ", "Not found")
 		http.Error(w, "Not Found", http.StatusNotFound)
 		return
 	}
 	keys_slice = append(keys_slice, "static")
 	keys_slice = append(keys_slice, "note.html")
 	filePath := filepath.Join(keys_slice...)
-	fmt.Println(filePath)
+	logrus.Debug("Static file ", filePath)
 	w.Header().Set("Content-Type", "text/html")
 	http.ServeFile(w, r, filePath)
 
 }
 
 func main() {
+	// Setup log system
+	// logrus.SetFormatter(&logrus.JSONFormatter{})
+	logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetOutput(os.Stdout)
+
+	/// HTTP server
 	http.HandleFunc("/api/", pageApiNote)
 	http.HandleFunc("/", staticFileHandler)
-	fmt.Println("Starting server at port 8080")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	port := os.Getenv("PORT")
+	if len(port) == 0 {
+		port = "8080"
+	}
+	fmt.Println("Starting server at port " + port)
+	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		panic(err)
 	}
 }
