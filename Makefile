@@ -1,20 +1,17 @@
 IMAGE_TAG=thenets/notes
+CONTAINER_RUNTIME=podman
 
-# Build Docker image
-build:
-	docker build -t $(IMAGE_TAG) .
+container-build:
+	${CONTAINER_RUNTIME} build -t $(IMAGE_TAG) .
 
-# Run server in the development mode
-run: 
-	docker run -it --rm \
+container-run:
+	${CONTAINER_RUNTIME} run -it --rm \
 		-v $(PWD)/src:/app \
-		-p 5000:5000 \
+		-p 8080:8080 \
 		$(IMAGE_TAG)
 
-# Run shell inside the container
-shell:
-	docker run -it --rm \
+container-shell:
+	${CONTAINER_RUNTIME} run -it --rm \
 		--name thenets-notes \
 		-v $(PWD)/src:/app \
 		$(IMAGE_TAG) /bin/sh
-	
