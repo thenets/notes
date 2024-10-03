@@ -10,13 +10,20 @@ RUN set -ex \
     && go mod download \
     && CGO_ENABLED=0 GOOS=linux go build -o /notes
 
-
+# ---
 # Final image
-FROM gcr.io/distroless/base-debian11
+# ---
+FROM docker.io/redhat/ubi9:9.4-1181
+
 WORKDIR /app
+
 COPY --from=builder /notes /app/notes
 COPY --from=builder /go/pkg/mod/github.com/thenets/notes/static /app/static
+
 USER nonroot:nonroot
+
 EXPOSE 8080
+
 ENV PORT=8080
+
 ENTRYPOINT ["/app/notes"]
