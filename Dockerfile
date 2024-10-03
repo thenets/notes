@@ -1,6 +1,8 @@
-FROM docker.io/golang:latest as builder
+FROM registry.access.redhat.com/ubi9/go-toolset:1.21.11-7.1724233645 as builder
 
 ENV GOPATH=/go
+
+USER root
 
 WORKDIR /go/pkg/mod/github.com/thenets/notes/
 
