@@ -8,7 +8,7 @@ go-update:
 
 # Container
 .PHONY: container-build
-container-build: go-update
+container-build:
 	${CONTAINER_RUNTIME} build -t $(IMAGE_TAG) .
 
 .PHONY: container-run

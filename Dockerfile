@@ -22,7 +22,13 @@ WORKDIR /app
 COPY --from=builder /notes /app/notes
 COPY --from=builder /go/pkg/mod/github.com/thenets/notes/static /app/static
 
-USER nonroot:nonroot
+# Add limited user (Fedora image) as uid 1000
+RUN set -x \
+    && useradd -m -s /sbin/nologin -u 1000 notes \
+    && chown -R notes:notes /app \
+    && chmod -R 755 /app
+
+USER notes
 
 EXPOSE 8080
 
