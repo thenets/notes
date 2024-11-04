@@ -3,12 +3,34 @@ updates:
   - package-ecosystem: gomod
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: weekly
     labels:
       - "dependencies"
+      - "go"
     open-pull-requests-limit: 10
+
   - package-ecosystem: docker
     directory: /
     schedule:
       interval: weekly
+    labels:
+      - "dependencies"
+      - "docker"
     open-pull-requests-limit: 10
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    allow:
+      # Allow both direct and indirect updates for all packages
+      - dependency-type: "all"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "security"
+      - "gh-action"
+    groups:
+      security:
+        applies-to: version-updates
+        patterns: ["*"]
