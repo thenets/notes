@@ -15,7 +15,7 @@ RUN set -ex \
 # ---
 # Final image
 # ---
-FROM docker.io/redhat/ubi9:9.5
+FROM docker.io/redhat/ubi9:9.6
 
 WORKDIR /app
 
